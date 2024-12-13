@@ -18,7 +18,7 @@ def parse_args():
                                                             "social_structure_ovlp_group","social_structure_hierarchical","social_structure_dynamic",], default='easy_negotiation')
 
     #===experiment===
-    parser.add_argument('--model', type=str, default='gpt-3.5-turbo-0301')
+    parser.add_argument('--model', type=str, default='gpt-4o-mini')
     parser.add_argument('--max_episodes', type=int, default=1)
     args = parser.parse_args()
 
