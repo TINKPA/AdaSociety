@@ -8,3 +8,4 @@ debug/
 *.sh
 *.log
 *.err
+project/tasks/llm/openai_key.txt

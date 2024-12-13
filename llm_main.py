@@ -15,7 +15,7 @@ def parse_args():
     parser.add_argument('--task_name', type=str, choices = ["easy_contract",
                                                             "hard_contract","easy_negotiation","hard_negotiation",
                                                             "social_structure_unconnected","social_structure_connected","social_structure_ind_group",
-                                                            "social_structure_ovlp_group","social_structure_hierarchical","social_structure_dynamic",], default='easy_negotiation')
+                                                            "social_structure_ovlp_group","social_structure_hierarchical","social_structure_dynamic",], default="easy_contract")
 
     #===experiment===
     parser.add_argument('--model', type=str, default='gpt-4o-mini')

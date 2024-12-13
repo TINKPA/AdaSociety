@@ -258,11 +258,12 @@ class ContractAgent(BaseAgent):
             prompt += "Action: I want to join in Coalition 0.\n"
 
         return prompt
-
+    # create gpt module for contract agent
     def create_gptmodule(self, module_name, retrival_method='recent_k', K=10):
         with open(f'{OUTPUT_DIR}output_{self.task}_{self.episode}.txt', 'a', encoding='utf-8') as file:
             print(f"\n--->Initializing GPT {module_name}<---\n", file=file)
         system_promt = self.generate_system_promt()
+        # save system prompt to file
         with open(f'{PROMPT_DIR}prompt_{self.task}_{self.agent_name_list[self.agent_id]}.txt', 'a', encoding='utf-8') as file:
             print(f"{system_promt}", file=file)
         messages = [{"role": "system", "content": system_promt}]

@@ -5,7 +5,7 @@ import time
 from typing import Union
 import random
 import itertools, os, json, re
-from openai import AzureOpenAI
+from openai import OpenAI, OpenAIError
 
 
 # Refer to https://platform.openai.com/docs/models/overview
@@ -18,6 +18,7 @@ TOKEN_LIMIT_TABLE = {
     "gpt-4-0314": 8192,
     "gpt-4-32k": 32768,
     "gpt-4-32k-0314": 32768,
+    "gpt-4o-mini": 128000,
 }
 
 def convert_messages_to_prompt(messages):
@@ -40,26 +41,22 @@ def retry_with_exponential_backoff(
         exponential_base: float = 2,
         jitter: bool = True,
         max_retries: int = 10,
-        # errors: tuple = (openai.error.RateLimitError,),
 ):
     def wrapper(*args, **kwargs):
         num_retries = 0
         delay = initial_delay
         while True:
-            # try:
-            return func(*args, **kwargs)
-
-            # except errors as e:
-            #     print(e)
-            #     num_retries += 1
-            #     if num_retries > max_retries:
-            #         raise Exception(
-            #             f"Maximum number of retries ({max_retries}) exceeded."
-            #         )
-            #     delay *= exponential_base * (1 + jitter * random.random())
-            #     time.sleep(delay)
-            # except Exception as e:
-            #     raise e
+            try:
+                return func(*args, **kwargs)
+            except OpenAIError as e:
+                num_retries += 1
+                if num_retries > max_retries:
+                    raise Exception(
+                        f"Maximum number of retries ({max_retries}) exceeded: {str(e)}"
+                    )
+                rprint(f"[yellow][WARNING][/yellow] Attempt {num_retries}/{max_retries}: {str(e)}")
+                delay *= exponential_base * (1 + jitter * random.random())
+                time.sleep(delay)
 
     return wrapper
 
@@ -89,7 +86,11 @@ class Module(object):
         self.dialog_history_list = []
         self.current_user_message = None
         self.cache_list = None
-        if self.model == 'claude':
+        
+        # Initialize OpenAI client for all OpenAI models
+        if 'gpt' in self.model or self.model == 'text-davinci-003':
+            self.client = OpenAI()
+        elif self.model == 'claude':
             self.client = anthropic.Client(
                 api_key="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")
 
@@ -133,38 +134,24 @@ class Module(object):
         retry_count = 0
 
         while not get_response:
-            if retry_count > 3:
-                rprint("[red][ERROR][/red]: Query GPT failed for over 3 times!")
-                return {}
-            if 'claude' in self.model:
-                response = self.client.messages.create(
-                    model="claude-3-haiku-20240307",
-                    max_tokens=1000,
-                    temperature=0.0,
-                    system=messages[0]['content'],  # <-- system prompt
-                    messages=[messages[1]]
-                )
             try:
                 if self.model in ['text-davinci-003']:
                     prompt = convert_messages_to_prompt(messages)
-                    response = openai.Completion.create(
+                    response = self.client.completions.create(
                         model=self.model,
                         prompt=prompt,
                         stop=stop,
                         temperature=temperature,
                         max_tokens=256
                     )
-                    time.sleep(10)
                 elif 'gpt' in self.model:
-                    response = openai.chat.completions.create(
+                    response = self.client.chat.completions.create(
                         model=self.model,
                         messages=messages,
                         stop=stop,
                         temperature=temperature,
-                        max_tokens = 256
+                        max_tokens=256
                     )
-
-                    time.sleep(3)
                 elif 'claude' in self.model:
                     response = self.client.messages.create(
                         model="claude-2.1",
@@ -176,10 +163,17 @@ class Module(object):
 
                 get_response = True
 
-            except Exception as e:
+            except OpenAIError as e:
                 retry_count += 1
-                rprint("[red][OPENAI ERROR][/red]:", e)
-                time.sleep(20)
+                rprint(f"[red][OPENAI ERROR][/red]: {str(e)}")
+                if retry_count > 3:
+                    raise Exception(f"Query failed after 3 retries: {str(e)}")
+                time.sleep(20 * retry_count)
+
+            except Exception as e:
+                rprint(f"[red][FATAL ERROR][/red]: {str(e)}")
+                return {}
+
         return self.parse_response(response)
 
     def parse_response(self, response):
@@ -188,7 +182,7 @@ class Module(object):
         elif self.model in ['text-davinci-003']:
             # return response["choices"][0]["text"]
             return response.choices[0].text
-        elif self.model in ['gpt-3.5-turbo-16k', 'gpt-3.5-turbo-0301', 'gpt-3.5-turbo', 'gpt-4', 'gpt-4-0314']:
+        elif self.model in ['gpt-3.5-turbo-16k', 'gpt-3.5-turbo-0301', 'gpt-3.5-turbo', 'gpt-4', 'gpt-4-0314', 'gpt-4o-mini']:
             # return response["choices"][0]["message"]["content"]
             return response.choices[0].message.content
 
