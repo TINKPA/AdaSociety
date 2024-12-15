@@ -1,0 +1,1 @@
+from project.utils.logging_config import logger
