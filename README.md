@@ -36,15 +36,7 @@ Install the required Python packages using `pip`:
 pip install -r requirements.txt
 ```
 
-### 4. Install OpenAI Python Library
-
-Install the OpenAI Python library to enable LLM functionalities:
-
-```bash
-pip install openai
-```
-
-### 5. Set Up OpenAI API Key
+### 4. Set Up OpenAI API Key
 
 Set your [OpenAI API key](https://platform.openai.com/account/api-keys) as an environment variable:
 
@@ -58,15 +50,7 @@ Replace `'your-api-key-here'` with your actual OpenAI API key.
 
 To quickly start a mini-game with default settings, follow the steps below.
 
-### 1. Navigate to the LLM Task Directory
-
-Change your directory to the LLM task folder:
-
-```bash
-cd project/tasks/llm
-```
-
-### 2. Run a Mini-Game
+### 1. Run a Mini-Game
 
 You can start any of the predefined mini-games using the `llm_main.py` script with the `--task_name` argument. For example, to run the **Easy Negotiation** mini-game with default settings:
 
@@ -370,6 +354,40 @@ These files contain the detailed interactions, agents' thoughts, plans, and acti
 You can customize the behavior of LLM agents and environment settings by modifying the task configuration files located in `config/task/llm/`. Refer to the [JSON Configuration File Documentation](./config/README.md) for detailed instructions on adjusting parameters such as the number of agents, resource types, and social structures.
 
 Additionally, you can craft custom `env_handler` and `agent` classes through Python code for greater flexibility and control. The `llm_main.py` script initializes the environment and agents based on the selected mini-game and task configurations.
+
+```mermaid
+sequenceDiagram
+    participant A as Agent
+    participant E as Environment
+    participant DS as DataSource
+    participant LLM as Language Model
+    participant SC as Social Component
+    participant PC as Physical Component
+
+    Note over E: Environment's point of view
+
+    A->>E: Request Observation
+    E->>DS: Fetch Relevant Observation Data
+    DS-->>E: Return Processed Data
+    E-->>A: Provide Observation Data
+    
+    Note over A: Agent evaluates both social and physical aspects
+    A->>PC: Interact with Physical Component
+    PC-->>A: Return Resource or Event Outcome
+    A->>SC: Propose Social Interaction (e.g., form group, share resources)
+    SC-->>A: Social Structure Feedback (e.g., updated connections)
+
+    A->>LLM: Send Observation for Analysis
+    LLM-->>A: Return Decision or Action Plan
+
+    A->>E: Submit Action to Environment
+    E->>PC: Update Physical State
+    E->>SC: Update Social State
+    E-->>A: Provide Updated State, Reward, and Feedback
+
+    A->>A: Integrate Results and Adapt Strategy
+
+```
 
 ## Additional Resources
 

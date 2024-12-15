@@ -8,3 +8,4 @@ ray[rllib,default]==2.6.3
 torch>=1.13.1
 torch_geometric>=2.5.3
 tqdm>=4.64.1
+openai==1.57.3

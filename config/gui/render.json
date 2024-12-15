@@ -1,5 +1,5 @@
 {
-  "mode": "none",
+  "mode": "human",
   "fps": 18,
   "step_frames": 3,
   "screen": {

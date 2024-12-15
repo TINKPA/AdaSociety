@@ -50,19 +50,19 @@ class BaseAgent(object):
         self.agent_name = None
         self.model = model
 
-        self.openai_api_keys = []
-        self.load_openai_keys()
+        # self.openai_api_keys = []
+        # self.load_openai_keys()
         self.key_rotation = True
 
-    def load_openai_keys(self):
-        with open(openai_key_file, "r") as f:
-            context = f.read()
-        self.openai_api_keys = context.split('\n')
+    # def load_openai_keys(self):
+    #     with open(openai_key_file, "r") as f:
+    #         context = f.read()
+    #     self.openai_api_keys = context.split('\n')
 
-    def openai_api_key(self):
-        if self.key_rotation:
-            self.update_openai_key()
-        return self.openai_api_keys[0]
+    # def openai_api_key(self):
+    #     if self.key_rotation:
+    #         self.update_openai_key()
+    #     return self.openai_api_keys[0]
 
     def update_openai_key(self):
         self.openai_api_keys.append(self.openai_api_keys.pop(0))
@@ -897,7 +897,7 @@ class Contract_PhysicalAgent(BaseAgent):
                 state_message = {"role": "user", "content": state_prompt}
                 if self.gpt:
                     self.planner.current_user_message = state_message
-                    response = self.planner.query()
+                    response = self.planner.query(key=self.openai_api_key())
                     self.planner.add_msg_to_dialog_history(state_message)
                     self.planner.add_msg_to_dialog_history({"role": "assistant", "content": response})
                 else:
@@ -1099,5 +1099,4 @@ class Contract_PhysicalAgent(BaseAgent):
             if self.stay < 5:
                 return False
         return True
-
 
