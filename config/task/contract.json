@@ -98,7 +98,7 @@
         }
       }
     ],
-    "max_length": 120,
+    "max_length": 10,
     "contract": {
       "negotiation_round": 5
     }

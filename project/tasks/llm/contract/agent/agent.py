@@ -331,7 +331,7 @@ class ContractAgent(BaseAgent):
         state_message = {"role": "user", "content": state_prompt}
         if self.gpt:
             self.planner.current_user_message = state_message
-            response = self.planner.query(key=self.openai_api_key())
+            response = self.planner.query()
             self.planner.add_msg_to_dialog_history(state_message)
             self.planner.add_msg_to_dialog_history({"role": "assistant", "content": response})
             with open(f'{OUTPUT_DIR}output_{self.task}_{self.episode}.txt', 'a', encoding='utf-8') as file:
@@ -897,7 +897,7 @@ class Contract_PhysicalAgent(BaseAgent):
                 state_message = {"role": "user", "content": state_prompt}
                 if self.gpt:
                     self.planner.current_user_message = state_message
-                    response = self.planner.query(key=self.openai_api_key())
+                    response = self.planner.query()
                     self.planner.add_msg_to_dialog_history(state_message)
                     self.planner.add_msg_to_dialog_history({"role": "assistant", "content": response})
                 else:
@@ -1099,4 +1099,5 @@ class Contract_PhysicalAgent(BaseAgent):
             if self.stay < 5:
                 return False
         return True
+
 

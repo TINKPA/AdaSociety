@@ -15,7 +15,7 @@ class ConfigLoader:
         for k, v in self.config['main'].items():
             if k == '__COMMENT__':
                 continue
-            print(v)
+            # print(v)
             if os.path.isfile(v):
                 self.config[k] = self.load_config(v)
             else:

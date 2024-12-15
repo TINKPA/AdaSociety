@@ -7,7 +7,7 @@ os.makedirs(log_dir, exist_ok=True)
 
 # Create a custom logger
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.ERROR)
+logger.setLevel(logging.INFO)
 
 # Create handlers
 file_handler = logging.FileHandler(f'{log_dir}/app.log', encoding='utf-8')

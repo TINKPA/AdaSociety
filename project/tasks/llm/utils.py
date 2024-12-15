@@ -1,12 +1,28 @@
 import openai
-# import anthropic
+from dotenv import load_dotenv
+import os
+import anthropic
 from rich import print as rprint
 import time
 from typing import Union
 import random
-import itertools, os, json, re
+import itertools, json, re
 from openai import OpenAI, OpenAIError
 
+# Load environment variables from .env file
+load_dotenv()
+
+# Retrieve the OpenAI API key from environment variables
+OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
+ANTHROPIC_API_KEY = os.getenv('ANTHROPIC_API_KEY')
+
+# Ensure the API key is set
+if not OPENAI_API_KEY and not ANTHROPIC_API_KEY:
+    raise ValueError("API key is not set. Please check your .env file.")
+
+# Set the OpenAI API key
+if OPENAI_API_KEY:
+    openai.api_key = OPENAI_API_KEY
 
 # Refer to https://platform.openai.com/docs/models/overview
 TOKEN_LIMIT_TABLE = {
@@ -90,9 +106,10 @@ class Module(object):
         # Initialize OpenAI client for all OpenAI models
         if 'gpt' in self.model or self.model == 'text-davinci-003':
             self.client = OpenAI()
-        elif self.model == 'claude':
-            self.client = anthropic.Client(
-                api_key="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")
+        elif self.model == 'claude' and ANTHROPIC_API_KEY:
+            self.client = anthropic.Client(api_key=ANTHROPIC_API_KEY)
+        else:
+            raise ValueError(f"Model {self.model} not supported or API key not set.")
 
     def add_msgs_to_instruction_head(self, messages: Union[list, dict]):
         if isinstance(messages, list):
@@ -117,19 +134,17 @@ class Module(object):
         return self.instruction_head_list + self.cache_list + [self.current_user_message]
 
     @retry_with_exponential_backoff
-    def query(self, key, stop=None, temperature=0.0, debug_mode='Y', trace=True):
-        openai.api_key = key
+    def query(self, stop=None, temperature=0.0, debug_mode='Y', trace=True):
+        # Use the globally set OpenAI API key
         rec = self.K
-        if trace == True:
+        if trace:
             self.K = 0
         self.cache_list = self.get_cache()
         messages = self.query_messages
-        if trace == False:
-            messages[len(messages) - 1][
-                'content'] += " Based on the failure explanation and scene description, analyze and plan again."
+        if not trace:
+            messages[-1]['content'] += " Based on the failure explanation and scene description, analyze and plan again."
         self.K = rec
         response = ""
-        # print('\n\nmessages = \n\n{}\n\n'.format(messages))
         get_response = False
         retry_count = 0
 

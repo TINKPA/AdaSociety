@@ -1,9 +1,11 @@
-from project.tasks.llm.contract.agent.agent import ContractAgent, Contract_PhysicalAgent
-from project.tasks.llm.negotiation.agent.agent import NegotiationAgent, Negotiation_PhysicalAgent
-from project.tasks.llm.social_structure.agent.agent import PhysicalAgent
 import copy
 import argparse
 import numpy as np
+from project.utils.logging_config import logger
+from project.tasks.llm.contract.agent.agent import ContractAgent, Contract_PhysicalAgent
+from project.tasks.llm.negotiation.agent.agent import NegotiationAgent, Negotiation_PhysicalAgent
+from project.tasks.llm.social_structure.agent.agent import PhysicalAgent
+
 
 from project.tasks.llm.llm_env_wrapper import LLMEnvWrapper
 OUTPUT_DIR = "project/tasks/llm/outputs/"

@@ -10,5 +10,6 @@ debug/
 *.err
 project/tasks/llm/openai_key.txt
 .DS_Store
-/outputs
-/prompts
+outputs/
+prompts/
+.env
