@@ -109,6 +109,6 @@ class Environment(MultiAgentEnv):
         pass
 
     def close(self):
-        if self.screen is not None:
-            pygame.display.quit()
-            pygame.quit()
+        # if self.screen is not None:
+        pygame.display.quit()
+        pygame.quit()

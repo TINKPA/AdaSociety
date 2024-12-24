@@ -1,4 +1,5 @@
 import pygame
+import logging
 
 SRC_DICT = {
     ' ': (4, 54),
@@ -33,7 +34,13 @@ class Cell(pygame.Rect):
     def __init__(self, _id, x, y, width, height):
         super().__init__(x, y, width, height)
         self._id = _id
-        src_x, src_y = SRC_DICT[self._id]
+        try:
+            src_x, src_y = SRC_DICT[self._id]
+        except KeyError:
+            # Handle the error, e.g., by setting a default position or logging a warning
+            # logging.warning("ID '%s' not found in SRC_DICT. Using default position.", self._id)
+            src_x, src_y = 0, 0  # Default position
+
         self.src_rect = pygame.Rect(
             src_x * width,
             src_y * height,
